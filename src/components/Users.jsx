@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {getAllUsers, getPostsByUserId, getTodosByUserId} from "../utils.js";
+import {getAllPosts, getAllTodos, getAllUsers, getPostsByUserId, getTodosByUserId} from "../utils.js";
 import User from "./User.jsx";
 import Todos from "./Todos.jsx";
 import Posts from "./Posts.jsx";
@@ -70,10 +70,12 @@ const Users = () => {
         const getUsersDataFromAPI = async () => {
             try {
                 const {data: users} = await getAllUsers()
+                const {data: posts} = await getAllPosts()
+                const {data: todos} = await getAllTodos()
                 // Get Todos for each user and store it in the usersState
                 for (const user of users) {
-                    user.todos = await getUserTodos(user?.id)
-                    user.posts = await getUserPosts(user?.id)
+                    user.todos = [...todos.filter(todo => todo.userId === user?.id)]
+                    user.posts = [...posts.filter(post => post.userId === user?.id)]
                 }
                 setUsersHandler(users)
                 /* Use localStorage as DataBase On Client Side */
@@ -102,7 +104,8 @@ const Users = () => {
                 <button onClick={() => {
                     setShowNewUser(true)
                     setShowUserTodosAndPosts(false)
-                }}>Add</button>
+                }}>Add
+                </button>
                 {filteredUsers.map(user => {
                     return selectedUser.id === user.id ? (<React.Fragment key={`User${user.id} Selected`}>
                         <User isSelected={true} onUserDelete={userDeleteHandler}
